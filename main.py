@@ -15,6 +15,8 @@ import pandas as pd
 
 catalog = pd.read_csv(join(dirname(__file__), r'catalogprocessdata.csv'))
 catalog.fillna(0, inplace=True)
+catalog.roman_converted.replace('n.d.',0,inplace=True)
+catalog["roman_converted"] = pd.to_numeric(catalog["roman_converted"])
 
 
 axis_map = {
@@ -44,7 +46,7 @@ y_axis = Select(title="Asse Y", options=sorted(axis_map.keys()), value="Altezza 
 # Create Column Data Source that will be used by the plot
 source = ColumnDataSource(data=dict(x=[], y=[], color=[],color_rileg=[],
                                     titolo=[], year=[], numero_del_codice=[],
-                                    fogli=[],alpha=[],marker_dim = [],Collocazione=[]))
+                                    fogli=[],alpha=[],marker_dim = [],Collocazione=[],is_digitized=[],preferred_manifest_url=[],roman_converted=[]))
 
 TOOLTIPS=[
     ("Segnatura", "@numero_del_codice"),
@@ -104,7 +106,10 @@ def update():
         marker_dim = df["marker_dim"],
         #revenue=df["revenue"],
         alpha=df["alpha"],
-        Collocazione=df["Collocazione"]
+        Collocazione=df["Collocazione"],
+        is_digitized=df["is_digitized"],
+        preferred_manifest_url=df["preferred_manifest_url"],
+        roman_converted = df["roman_converted"]
     )
 
 def callback():
@@ -134,9 +139,10 @@ l = layout([
 
 # Table 
 columns = [
-    TableColumn(field="numero_del_codice", title="Segnatura",width=30,),
+    TableColumn(field="numero_del_codice", title="Segnatura",width=15,),
     TableColumn(field="titolo", title="Titolo",width=450),
-    TableColumn(field="Collocazione", title="Collocazione",width=45)
+    TableColumn(field="Collocazione", title="Collocazione",width=15),
+    TableColumn(field="is_digitized", title="Digitalizzato",width=15,formatter = HTMLTemplateFormatter(template = '<a href="http://lezioni.meneghetti.univr.it/UVjs/?manifest=<%= preferred_manifest_url  %>" target="_blank"><%= value %></a>'))
 ]
 
 data_table = DataTable(source=source, columns=columns, width=800)
