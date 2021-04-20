@@ -6,7 +6,7 @@ import pandas.io.sql as psql
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, layout
-from bokeh.models import ColumnDataSource, Div, Select, Slider, TextInput,Button,CustomJS,TableColumn,DataTable,HTMLTemplateFormatter
+from bokeh.models import ColumnDataSource, Div, Select, Slider, TextInput
 from bokeh.plotting import figure
 #from bokeh.sampledata.catalog_data import movie_path
 
@@ -14,14 +14,19 @@ from bokeh.plotting import figure
 import pandas as pd
 
 catalog = pd.read_csv(join(dirname(__file__), r'catalogprocessdata.csv'))
-catalog.fillna(0, inplace=True)
 
+# catalog["revenue"] = catalog.BoxOffice.apply(lambda x: '{:,d}'.format(int(x)))
+
+# with open(join(dirname(__file__), "razzies-clean.csv")) as f:
+#     razzies = f.read().splitlines()
+# catalog.loc[catalog.imdbID.isin(razzies), "color"] = "purple"
+# catalog.loc[catalog.imdbID.isin(razzies), "alpha"] = 0.9
 
 axis_map = {
     "Ampiezza (mm)": "ampiezza",
     "Altezza (mm)": "altezza",
     "Anno (massimo)": "datazione_f",
-    "Segnatura":'roman_converted'
+
 }
 
 desc = Div(text=open(join(dirname(__file__), "description.html")).read(), sizing_mode="stretch_width")
@@ -52,7 +57,7 @@ TOOLTIPS=[
     ("Collocazione","@Collocazione")
 ]
 
-p = figure(plot_height=400, plot_width=400, title="", toolbar_location='above', tooltips=TOOLTIPS, sizing_mode="scale_both",tools='box_zoom,wheel_zoom,pan,reset')
+p = figure(plot_height=400, plot_width=400, title="", toolbar_location=None, tooltips=TOOLTIPS, sizing_mode="scale_both")
 p.circle(x="x", y="y", source=source, size="marker_dim", color="color", line_color="color_rileg", fill_alpha="alpha")
 
 
@@ -107,43 +112,19 @@ def update():
         Collocazione=df["Collocazione"]
     )
 
-def callback():
-    source.selected.indices = []
-
-buttondes= Button(label="Resetta selezione", button_type="success")
-buttondes.on_click(callback)
-
-# Bottone download
-button = Button(label="Scarica selezione", button_type="success")
-button.js_on_click(CustomJS(args=dict(source=source),
-                            code=open(join(dirname(__file__), "download.js")).read()))
-
 # controls = [reviews, boxoffice, genre, min_year, max_year, oscars, director, cast, x_axis, y_axis]
 controls = [min_year, max_year, x_axis, y_axis,parola_titolo,parola_segnatura,colloc]
 for control in controls:
     control.on_change('value', lambda attr, old, new: update())
 
-
-
-inputs = column(*controls,button,buttondes, width=320, height=600)
-#inputs.sizing_mode = "fixed"
+inputs = column(*controls, width=320, height=600)
+inputs.sizing_mode = "fixed"
 l = layout([
     [desc],
     [inputs, p],
-],)#sizing_mode="scale_both")
+], sizing_mode="scale_both")
 
-# Table 
-columns = [
-    TableColumn(field="numero_del_codice", title="Segnatura",width=30,),
-    TableColumn(field="titolo", title="Titolo",width=450),
-    TableColumn(field="Collocazione", title="Collocazione",width=45)
-]
-
-data_table = DataTable(source=source, columns=columns, width=800)
-
-# UPDATE GENERAL
-
-
-curdoc().add_root(column(l,data_table))
-curdoc().title = "catalog"
 update()  # initial load of the data
+
+curdoc().add_root(l)
+curdoc().title = "catalog"

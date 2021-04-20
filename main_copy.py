@@ -6,16 +6,57 @@ import pandas.io.sql as psql
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, layout
-from bokeh.models import ColumnDataSource, Div, Select, Slider, TextInput,Button,CustomJS,TableColumn,DataTable,HTMLTemplateFormatter
+from bokeh.models import ColumnDataSource, Div, Select, Slider, TextInput,Button,CustomJS,TableColumn,DataTable
 from bokeh.plotting import figure
 #from bokeh.sampledata.catalog_data import movie_path
 
 # Added
 import pandas as pd
 
-catalog = pd.read_csv(join(dirname(__file__), r'catalogprocessdata.csv'))
-catalog.fillna(0, inplace=True)
+catalog = pd.read_csv(join(dirname(__file__), r'lista_manoscritti_Versione_con_aggiunte.csv'))
 
+# conn = sql.connect(movie_path)
+# query = open(join(dirname(__file__), 'query.sql')).read()
+# catalog = psql.read_sql(query, conn)
+
+#catalog["color"] = np.where(catalog["fogli"] > 0, "orange", "grey")
+# coloro i codici a seconda del materiale
+# QUESTE FUNZIONI POTREBBERO ESSERE FATTE PER CREARE UN NUOVO DATASET SENZA RICALCOLARLE
+def color_material (row):
+   if row['materiale'] == 'cartaceo':
+        return 'orange'
+   if row['materiale'] == 'membranaceo':
+        return 'blue'
+   if row['materiale'] == 'bombacino':
+       return 'violet'   
+   else:
+        return 'gray'
+catalog["color"] = catalog.apply (lambda row: color_material(row), axis=1)
+
+def color_binding(row):
+   if row['rilegatura'] == 'rilegato':
+        return '#2B9332'
+   if row['rilegatura'] == 'fascicoli':
+        return '#800000'
+   if row['rilegatura'] == 'fogli sciolti':
+       return '#FF5733'   
+   else:
+        return '#888483'
+catalog["color_rileg"] = catalog.apply (lambda row: color_binding(row), axis=1)
+
+mdim = np.log(1 + (catalog.fogli/catalog.fogli.max())*1000)
+mdim[mdim == 0] = 4
+catalog["marker_dim"] = mdim
+
+catalog["alpha"] = np.where(catalog["rilegatura"] == 'rilegato', 0.5, 0.15)
+# catalog.fillna(0, inplace=True)  # just replace missing values with zero
+catalog.fillna(0, inplace=True)
+# catalog["revenue"] = catalog.BoxOffice.apply(lambda x: '{:,d}'.format(int(x)))
+
+# with open(join(dirname(__file__), "razzies-clean.csv")) as f:
+#     razzies = f.read().splitlines()
+# catalog.loc[catalog.imdbID.isin(razzies), "color"] = "purple"
+# catalog.loc[catalog.imdbID.isin(razzies), "alpha"] = 0.9
 
 axis_map = {
     "Ampiezza (mm)": "ampiezza",
@@ -126,15 +167,15 @@ for control in controls:
 
 
 inputs = column(*controls,button,buttondes, width=320, height=600)
-#inputs.sizing_mode = "fixed"
+inputs.sizing_mode = "fixed"
 l = layout([
     [desc],
     [inputs, p],
-],)#sizing_mode="scale_both")
+], sizing_mode="scale_both")
 
 # Table 
 columns = [
-    TableColumn(field="numero_del_codice", title="Segnatura",width=30,),
+    TableColumn(field="numero_del_codice", title="Segnatura",width=30),
     TableColumn(field="titolo", title="Titolo",width=450),
     TableColumn(field="Collocazione", title="Collocazione",width=45)
 ]
@@ -142,8 +183,7 @@ columns = [
 data_table = DataTable(source=source, columns=columns, width=800)
 
 # UPDATE GENERAL
-
+update()  # initial load of the data
 
 curdoc().add_root(column(l,data_table))
 curdoc().title = "catalog"
-update()  # initial load of the data
