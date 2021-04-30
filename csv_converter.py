@@ -51,7 +51,7 @@ catalog["marker_dim"] = mdim
 catalog["alpha"] = np.where(catalog["rilegatura"] == 'rilegato', 0.5, 0.15)
 # catalog.fillna(0, inplace=True)  # just replace missing values with zero
 catalog.fillna(0, inplace=True)
-catalog.drop(["palinsesto","testo_indistinto","danni_fuoco","cancro_pergamena","margini_danneggiati","danni_umidita","restaurato","anno_restauro","dorature","disegni","miniato","colori","rosso","blue"], axis=1,inplace=True)
+#catalog.drop(["palinsesto","testo_indistinto","danni_fuoco","cancro_pergamena","margini_danneggiati","danni_umidita","restaurato","anno_restauro","dorature","disegni","miniato","colori","rosso","blue"], axis=1,inplace=True)
 catalog.to_csv("catalogprocessdata.csv")
 
 
