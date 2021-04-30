@@ -139,13 +139,13 @@ l = layout([
 
 # Table 
 columns = [
-    TableColumn(field="numero_del_codice", title="Segnatura",width=15,),
-    TableColumn(field="titolo", title="Titolo",width=450),
-    TableColumn(field="Collocazione", title="Collocazione",width=15),
-    TableColumn(field="is_digitized", title="Digitalizzato",width=15,formatter = HTMLTemplateFormatter(template = '<a href="http://lezioni.meneghetti.univr.it/UVjs/?manifest=<%= preferred_manifest_url  %>" target="_blank"><%= value %></a>'))
+    TableColumn(field="numero_del_codice", title="Segnatura",width=10,),
+    TableColumn(field="titolo", title="Titolo",width=440),
+    TableColumn(field="Collocazione", title="Collocazione",width=10),
+    TableColumn(field="is_digitized", title="Digitalizzato",width=10,formatter = HTMLTemplateFormatter(template = '<a href="http://lezioni.meneghetti.univr.it/UVjs/?manifest=<%= preferred_manifest_url  %>" target="_blank"><%= value %></a>'))
 ]
 
-data_table = DataTable(source=source, columns=columns, width=800)
+data_table = DataTable(source=source, columns=columns, width=900)
 
 # UPDATE GENERAL
 
