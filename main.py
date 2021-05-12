@@ -13,7 +13,7 @@ from bokeh.plotting import figure
 # Added
 import pandas as pd
 
-catalog = pd.read_csv(join(dirname(__file__), r'catalogprocessdata.csv'))
+catalog = pd.read_csv(join(dirname(__file__), r'catalogprocessdata.csv'),delimiter=";")
 catalog.fillna(0, inplace=True)
 catalog.roman_converted.replace('n.d.',0,inplace=True)
 catalog["roman_converted"] = pd.to_numeric(catalog["roman_converted"])
@@ -74,7 +74,7 @@ def select_catalog():
     # if (genre_val != "All"):
     #     selected = selected[selected.Genre.str.contains(genre_val)==True]
     if (parola_titolo_val != ""):
-        selected = selected[selected.titolo.str.contains(parola_titolo_val)==True]
+        selected = selected[selected.titolo.str.contains(parola_titolo_val,case=False)==True]
     if (parola_segnatura_val != ""):
         if parola_segnatura_val.isdigit():
             selected = selected[selected.roman_converted == parola_segnatura_val]
@@ -140,7 +140,7 @@ l = layout([
 # Table 
 columns = [
     TableColumn(field="numero_del_codice", title="Segnatura",width=10,),
-    TableColumn(field="titolo", title="Titolo",width=440),
+    TableColumn(field="titolo", title="Titolo",width=280),
     TableColumn(field="Collocazione", title="Collocazione",width=10),
     TableColumn(field="is_digitized", title="Digitalizzato",width=10,formatter = HTMLTemplateFormatter(template = '<a href="http://lezioni.meneghetti.univr.it/UVjs/?manifest=<%= preferred_manifest_url  %>" target="_blank"><%= value %></a>'))
 ]
